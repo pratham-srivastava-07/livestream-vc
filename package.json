@@ -1,0 +1,8 @@
+{
+  "name": "gmeet",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
