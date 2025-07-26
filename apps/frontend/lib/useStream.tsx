@@ -40,25 +40,34 @@ export function useStreamClient() {
     if (!stream || !socketRef.current) return
 
     const socket = socketRef.current
+    console.log("📡 Requesting router RTP capabilities")
     const rtpCapabilities = await request<RtpCapabilities>(socket, 'getRouterRtpCapabilities')
+     console.log("🎛️ Creating device")
     const device = new mediasoupClient.Device()
     await device.load({ routerRtpCapabilities: rtpCapabilities })
     deviceRef.current = device
+    console.log("🔧 Requesting transport creation")
+
 
     const transportOptions = await request<TransportCreationOptions>(socket, 'createWebRtcTransport')
+    console.log("🚚 Creating send transport")
     const transport = device.createSendTransport(transportOptions)
 
     transport.on('connect', ({ dtlsParameters }, callback) => {
+      console.log("🔗 Connecting transport")
       socket.emit('connectTransport', { dtlsParameters })
       callback()
     })
 
     transport.on('produce', async ({ kind, rtpParameters }, callback) => {
+      console.log(`📤 Producing ${kind}`)
       const { id } = await request<{ id: string }>(socket, 'produce', { kind, rtpParameters })
+      console.log(`✅ Produced ${kind} with id: ${id}`)
       callback({ id })
     })
 
     for (const track of stream.getTracks()) {
+      console.log(`🎥 Sending track: ${track.kind}`)
       await transport.produce({ track })
     }
 

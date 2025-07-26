@@ -140,6 +140,7 @@ io.on('connection', (socket) => {
       const producer = await peer.transfer.produce({ kind, rtpParameters })
 
       allProducers.push({ socketId: socket.id, producer, kind })
+       console.log(`[${socket.id}] ✅ Producer created for ${kind}, ID: ${producer.id}`)
 
       callback({ id: producer.id })
     })
@@ -152,7 +153,11 @@ io.on('connection', (socket) => {
       const transport = peer.transfer
       const consumers = []
 
+      console.log(`🔍 [${socket.id}] Requested to consume`)
+  console.log('🔢 Total producers:', allProducers.length)
+
       for (const { producer } of allProducers) {
+         console.log('➡️ Attempting to consume from producer:', producer.id)
         if (!router.canConsume({ producerId: producer.id, rtpCapabilities })) continue
 
         try {
@@ -161,6 +166,7 @@ io.on('connection', (socket) => {
             rtpCapabilities,
             paused: false,
           })
+           console.log('✅ Consumed:', consumer.id)
 
           peer.consumer = consumer
           consumers.push({

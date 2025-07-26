@@ -55,8 +55,9 @@ export function useWatchClient(onTrack: (track: MediaStream) => void) {
         rtpCapabilities: device.rtpCapabilities,
         consumerTransportId: transportOptions.id,
       })
-
+      console.log('📦 Got consumers:', consumers.length)
       for (const consumerInfo of consumers) {
+        console.log('🎥 Consuming track from:', consumerInfo.producerId)
         const consumer = await transport.consume(consumerInfo)
         const stream = new MediaStream()
         stream.addTrack(consumer.track)
